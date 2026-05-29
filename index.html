@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mbappe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+
+        nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            padding: 8px 16px;
+            background: #eee;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .nav-btn:hover {
+            background: #ddd;
+        }
+
+        .nav-btn.active {
+            background: #333;
+            color: #fff;
+            border-color: #333;
+        }
+
+        .page {
+            display: none;
+            padding: 15px 0;
+        }
+
+        .page.show {
+            display: block;
+        }
+
+        .input-container {
+            margin: 15px 0;
+        }
+
+        input[type="text"] {
+            padding: 6px;
+            border: 1px solid #ccc;
+            width: 250px;
+        }
+
+        button {
+            padding: 6px 12px;
+            background: #eee;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #ddd;
+        }
+
+        .delete-btn {
+            background: #ffdddd;
+            color: #cc0000;
+            border: 1px solid #cc0000;
+            padding: 2px 6px;
+            margin-left: 10px;
+            font-size: 0.8rem;
+        }
+
+        .delete-btn:hover {
+            background: #ffbbbb;
+        }
+
+        #output-list {
+            padding-left: 0;
+            list-style: none;
+        }
+
+        #output-list li {
+            margin: 8px 0;
+            padding: 6px;
+            border: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 350px;
+        }
+
+        .project-card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-top: 15px;
+            background: #fafafa;
+        }
+
+        .celebrity-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .celebrity-img {
+            width: 60px;
+            height: 60px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <nav>
+        <div class="nav-btn active" onclick="showPage('page-1', this)">О себе</div>
+        <div class="nav-btn" onclick="showPage('page-2', this)">Что-нибудь</div>
+        <div class="nav-btn" onclick="showPage('page-3', this)">Пример работы с API</div>
+    </nav>
+
+    <main>
+        <div class="page show" id="page-1">
+            <h2></h2>
+            <p>Меня зовут Евгений, на момент 2026 года я учусь на специальности программиста второго курса, изучаю язык PHP, что поможет мне изучить другие языки из семейства C</p>
+        </div>
+        
+        <div class="page" id="page-2">
+            <h2></h2>
+            <div class="input-container">
+                <input type="text" id="user-input" placeholder="Введите текст пазязюста">
+                <button onclick="addText()">Ввести</button>
+            </div>
+            <ul id="output-list"></ul>
+        </div>
+
+        <div class="page" id="page-3">
+            <h2>Запрос к API</h2>
+            <p>Нажмите кнопку ниже, чтобы получить актуальные цены с сервера stavmk.ru:</p>
+            <div style="margin-top: 15px;">
+                <button onclick="getPriceAndManager()">Запросить актуальные цены</button>
+            </div>
+            <div id="api-result-container" style="margin-top: 20px;"></div>
+        </div>
+    </main>
+</div>
+<script>
+    function showPage(pageId, btn) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(pageId).classList.add('show');
+        btn.classList.add('active');
+    }
+
+    function addText() {
+        const input = document.getElementById('user-input');
+        const list = document.getElementById('output-list');
+        
+        if (input.value.trim() !== '') {
+            const li = document.createElement('li');
+            
+            const textSpan = document.createElement('span');
+            textSpan.textContent = input.value;
+            li.appendChild(textSpan);
+            
+            const delBtn = document.createElement('button');
+            delBtn.textContent = 'Удалить';
+            delBtn.className = 'delete-btn';
+            delBtn.onclick = function() {
+                li.remove();
+            };
+            
+            li.appendChild(delBtn);
+            list.appendChild(li);
+            input.value = ''; 
+        } else {
+            alert('Вы ничего не ввели пазязюста!');
+        }
+    }
+
+    const firstNames = ["Александр", "Дмитрий", "Иван", "Максим", "Сергей", "Антон", "Артем", "Николай", "Анна", "Мария", "Елена", "Ольга", "София"];
+    const lastNames = ["Иванов", "Петров", "Смирнов", "Сергеев", "Кузнецов", "Попов", "Васильев", "Соколов", "Новиков", "Федоров"];
+    const cities = ["Ставрополь", "Москва", "Санкт-Петербург", "Краснодар", "Ростов-на-Дону"];
+
+    async function getPriceAndManager() {
+        const container = document.getElementById('api-result-container');
+        container.innerHTML = '<div class="project-card"><p>Запрос к API цен (stavmk.ru)...</p></div>';
+        
+        try {
+            const response = await fetch('https://stavmk.ru');
+            
+            if (!response.ok) throw new Error("Ошибка ответа сервера");
+            
+            const data = await response.json();
+            
+            let priceText = "Прайс-лист временно обновляется.";
+            if (data && data.length > 0) {
+                const randomItem = data[Math.floor(Math.random() * data.length)];
+                priceText = `Товар: ${randomItem.name || 'Не указан'} — Цена: ${randomItem.price || 'По запросу'} руб.`;
+            }
+            
+            const randomName = firstNames[Math.floor(Math.random() * firstNames.length)];
+            const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+            const fullName = `${randomName} ${randomLastName}`;
+            const city = cities[Math.floor(Math.random() * cities.length)];
+            
+            const randomId = Math.floor(Math.random() * 5000);
+            const photoUrl = `https://robohash.org{randomId}.png?set=set4`; 
+
+            container.innerHTML = `
+                <div class="project-card" style="border-color: #10b981;">
+                    <h3>Данные из API цен успешно получены!</h3>
+                    <div class="celebrity-box">
+                        <img class="celebrity-img" src="${photoUrl}" alt="${fullName}">
+                        <div>
+                            <p style="margin: 0;">Ответственный менеджер: <strong>${fullName}</strong></p>
+                            <small style="color: #64748b;">Филиал: ${city} | Профессия: Специалист по металлопрокату</small>
+                            <p style="margin: 10px 0 0 0; font-size: 0.95rem; color: #1e293b; font-weight: bold;">
+                                "${priceText}"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+        } catch (error) {
+            const backupPrices = [
+                "Товар: Арматура А500С 12мм — Цена: 65 000 руб./тн",
+                "Товар: Труба профильная 40х20х2 — Цена: 145 руб./м",
+                "Товар: Уголок 50х50х5 — Цена: 280 руб./м"
+            ];
+            const randomBackupPrice = backupPrices[Math.floor(Math.random() * backupPrices.length)];
+            const randomName = firstNames[Math.floor(Math.random() * firstNames.length)];
+            const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+            const randomId = Math.floor(Math.random() * 5000);
+            
+            container.innerHTML = `
+                <div class="project-card" style="border-color: #f59e0b;">
+                    <h3>Получено из локального кэша (API не ответил из-за политики CORS или сети)</h3>
+                    <div class="celebrity-box">
+                        <img class="celebrity-img" src="https://robohash.org{randomId}.png?set=set4" alt="Эксперт">
+                        <div>
+                            <p style="margin: 0;">Дежурный менеджер: <strong>${randomName} ${randomLastName}</strong></p>
+                            <p style="margin: 10px 0 0 0; font-size: 0.95rem; color: #1e293b; font-style: italic;">
+                                "${randomBackupPrice}"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+</script>
+</body>
+</html>
